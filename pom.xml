@@ -4,16 +4,16 @@
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jira XRay collector micro service collects data from Jira XRay</description>
-    <url>https://github.com/capitalone/Hygieia</url>
+    <url>https://github.com/Hygieia/hygieia-testresults-jiraxray-collector</url>
     <packaging>jar</packaging>
-
+    <version>3.1.0-SNAPSHOT</version>
+    <groupId>com.capitalone.dashboard</groupId>
     <artifactId>jira-xray-testresult-collector</artifactId>
 
     <parent>
         <groupId>com.capitalone.dashboard</groupId>
         <artifactId>Hygieia</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
-        <relativePath>../../..</relativePath>
+        <version>3.0.1</version>
     </parent>
 
     <repositories>
@@ -53,21 +53,150 @@
         <final.name>jira-xray-testresult-collector</final.name>
         <httpasyncclient.version>4.0-beta3-atlassian-1</httpasyncclient.version>
         <httpclient.version>4.2.1-atlassian-2</httpclient.version>
+        <java.version>1.8</java.version>
+        <repository.name>hygieia-testresults-jiraxray-collector</repository.name>
+        <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
+        <bc.version>3.0.1</bc.version>
+        <com.capitalone.dashboard.core.version>3.1.2</com.capitalone.dashboard.core.version>
+        <commons.io.version>2.4</commons.io.version>
+        <commons.lang.version>3.8.1</commons.lang.version>
+        <coveralls.maven.plugin.version>4.3.0</coveralls.maven.plugin.version>
+        <developmentTeam>The Hygieia Team</developmentTeam>
+        <jacoco.maven.plugin.version>0.8.3</jacoco.maven.plugin.version>
+        <jacoco.coverage.percentage.minimum>0.001</jacoco.coverage.percentage.minimum><!-- will fix in future-->
+        <jacoco.classes.missed.minimum>50</jacoco.classes.missed.minimum>
+        <japicmp.breakBuildOnBinaryIncompatibleModifications>true</japicmp.breakBuildOnBinaryIncompatibleModifications>
+        <japicmp.breakBuildOnSourceIncompatibleModifications>true</japicmp.breakBuildOnSourceIncompatibleModifications>
+        <japicmp.skip>false</japicmp.skip>
+        <java.compilation.source>1.8</java.compilation.source>
+        <java.compilation.target>1.8</java.compilation.target>
+        <maven.changes.plugin.version>2.12.1</maven.changes.plugin.version>
+        <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.javadoc.plugin.version>3.1.0</maven.javadoc.plugin.version>
+        <maven.pmd.plugin.version>3.11.0</maven.pmd.plugin.version>
+        <maven.project-info.version>3.0.0</maven.project-info.version>
+        <maven.scm.publish.plugin.version>3.0.0</maven.scm.publish.plugin.version>
+        <maven.site.plugin.version>3.7.1</maven.site.plugin.version>
+        <mockito.all.version>1.10.19</mockito.all.version>
+        <org.joda.joda-convert.version>1.8.1</org.joda.joda-convert.version>
+        <site.publish.url>https://github.com/Hygieia/${project.artifactId}</site.publish.url>
+        <site.publish.checkout.directory>site-content</site.publish.checkout.directory>
+        <spotbugs.plugin.version>3.1.11</spotbugs.plugin.version>
+        <svnkit.version>1.8.7</svnkit.version>
     </properties>
 
     <build>
-        <finalName>${final.name}</finalName>
+        <defaultGoal>clean verify apache-rat:check japicmp:cmp checkstyle:check spotbugs:check javadoc:javadoc</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${java.compilation.source}</source>
+                    <target>${java.compilation.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <version>0.13.1</version>
+                <configuration>
+                    <oldVersion>
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <version>${bc.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                    </oldVersion>
+                    <newVersion>
+                        <file>
+                            <path>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</path>
+                        </file>
+                    </newVersion>
+                    <parameter>
+                        <onlyModified>true</onlyModified>
+                        <breakBuildOnBinaryIncompatibleModifications>${japicmp.breakBuildOnBinaryIncompatibleModifications}</breakBuildOnBinaryIncompatibleModifications>
+                        <breakBuildOnSourceIncompatibleModifications>${japicmp.breakBuildOnSourceIncompatibleModifications}</breakBuildOnSourceIncompatibleModifications>
+                        <!-- skip japicmp on "mvn site" - use "mvn package site" to include report -->
+                        <ignoreMissingNewVersion>true</ignoreMissingNewVersion>
+                        <reportOnlyFilename>true</reportOnlyFilename>
+                        <skipPomModules>true</skipPomModules>
+                        <ignoreMissingClasses>false</ignoreMissingClasses>
+                    </parameter>
+                    <skip>${japicmp.skip}</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>src/devops/checkstyle.xml</configLocation>
+                    <suppressionsLocation>src/devops/checkstyle-suppressions.xml</suppressionsLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <version>${apache.rat.plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**.tests/**</exclude>
+                        <exclude>**logs/**</exclude>
+                        <exclude>**site-content/**</exclude>
+                        <exclude>RELEASE-NOTES.txt</exclude>
+                        <exclude>src/test/resources/org/tmatesoft/svn/test/apache.config.template</exclude>
+                        <exclude>src/test/resources/org/tmatesoft/svn/test/test.properties.template</exclude>
+                        <exclude>src/test/resources/org/tmatesoft/svn/test/svnserve.config.template</exclude>
+                        <exclude>src/main/resources/banner.txt</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven.pmd.plugin.version}</version>
+                <configuration>
+                    <failOnViolation>false</failOnViolation>
+                    <rulesets>
+                        <ruleset>src/devops/pmd.xml</ruleset>
+                    </rulesets>
+                    <targetJdk>${java.compilation.target}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
                     <skipDockerBuild>false</skipDockerBuild>
-                    <imageName>hygieia-jira-xray-testresult-collector</imageName>
+                    <imageName>${repository.name}</imageName> <!-- keeping image name in sync with repo name-->
                     <dockerDirectory>${project.basedir}/docker</dockerDirectory>
                     <resources>
                         <resource>
@@ -81,20 +210,90 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.maven.plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>default-prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>report</id>
-                        <phase>verify</phase>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.coverage.percentage.minimum}</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>CLASS</counter>
+                                            <value>MISSEDCOUNT</value>
+                                            <maximum>${jacoco.classes.missed.minimum}</maximum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>${maven.scm.publish.plugin.version}</version>
+                <configuration>
+                    <content>${project.build.directory}/site</content>
+                    <checkoutDirectory>${site.publish.checkout.directory}</checkoutDirectory>
+                    <scmBranch>gh-pages</scmBranch>
+                    <tryUpdate>true</tryUpdate>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-gitexe</artifactId>
+                        <version>1.9.5</version>
+                        <scope>compile</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sonatype.plexus</groupId>
+                        <artifactId>plexus-cipher</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>scm-publish</id>
+                        <phase>site-deploy</phase>
+                        <!--  deploy site with maven-scm-publish-plugin  -->
+                        <goals>
+                            <goal>publish-scm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.site.plugin.version}</version>
+                <configuration>
+                    <!-- don't deploy site with maven-site-plugin -->
+                    <skipDeploy>true</skipDeploy>
+                </configuration>
             </plugin>
         </plugins>
         <testResources>
@@ -105,6 +304,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.capitalone.dashboard</groupId>
+            <artifactId>core</artifactId>
+            <version>${com.capitalone.dashboard.core.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-java-client-core</artifactId>
