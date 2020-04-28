@@ -6,7 +6,7 @@
     <description>Jira XRay collector micro service collects data from Jira XRay</description>
     <url>https://github.com/Hygieia/hygieia-testresults-jiraxray-collector</url>
     <packaging>jar</packaging>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.1.3-SNAPSHOT</version>
     <groupId>com.capitalone.dashboard</groupId>
     <artifactId>jira-xray-testresult-collector</artifactId>
 
