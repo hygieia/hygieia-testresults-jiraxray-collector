@@ -52,7 +52,7 @@
         <junit.version>4.11</junit.version>
         <final.name>jira-xray-testresult-collector</final.name>
         <httpasyncclient.version>4.0-beta3-atlassian-1</httpasyncclient.version>
-        <httpclient.version>4.2.1-atlassian-2</httpclient.version>
+        <httpclient.version>4.5.12</httpclient.version>
         <java.version>1.8</java.version>
         <repository.name>hygieia-testresults-jiraxray-collector</repository.name>
         <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
@@ -740,19 +740,19 @@
                                 <configuration>
                                     <tasks>
                                         <exec executable="git">
-                                            <arg line="clone -b gh-pages --single-branch ${site.publish.url} ${site.publish.checkout.directory}" />
+                                            <arg line="clone -b gh-pages --single-branch ${site.publish.url} ${site.publish.checkout.directory}"/>
                                         </exec>
 
                                         <exec executable="git" dir="site-content">
-                                            <arg line="fetch origin gh-pages" />
+                                            <arg line="fetch origin gh-pages"/>
                                         </exec>
 
                                         <exec executable="git" dir="site-content">
-                                            <arg line="reset --hard origin/gh-pages" />
+                                            <arg line="reset --hard origin/gh-pages"/>
                                         </exec>
 
                                         <pathconvert pathsep=" " property="dirs">
-                                            <dirset dir="${site.publish.checkout.directory}" includes="*" />
+                                            <dirset dir="${site.publish.checkout.directory}" includes="*"/>
                                         </pathconvert>
                                     </tasks>
                                 </configuration>
